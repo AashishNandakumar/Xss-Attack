@@ -17,7 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from vulnerable_form.views import comment_view, stolen_data_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("comments/", comment_view, name="comments"),
+    path("collect_data/", stolen_data_view, name="collect_data"),
 ]

