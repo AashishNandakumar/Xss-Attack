@@ -1,9 +1,10 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
     <head>
+        <title>Secure Comments Section</title>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Modern Comments Section</title>
         <script
             src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"
             defer
@@ -58,6 +59,7 @@
             }
         </style>
     </head>
+
     <body class="bg-gray-50 min-h-screen" x-data="{ showForm: false }">
         <div class="container mx-auto px-4 py-8 max-w-4xl">
             <!-- Header Section -->
@@ -85,22 +87,29 @@
 
                 <form
                     method="POST"
+                    action="{% url 'secure-comments' %}"
                     x-show="showForm"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 transform -translate-y-4"
                     x-transition:enter-end="opacity-100 transform translate-y-0"
                     class="space-y-4"
+                    id="commentForm"
                 >
+                    {% csrf_token %}
                     <div class="relative">
                         <textarea
-                            rows="4"
                             name="content"
+                            id="content"
+                            rows="4"
+                            maxlength="1000"
+                            required
                             placeholder="Share your thoughts..."
                             class="w-full p-4 border border-gray-300 rounded-lg resize-none textarea-focus focus:outline-none focus:border-blue-500"
                         ></textarea>
                         <div class="absolute bottom-3 right-3 text-gray-400">
+                            <span class="text-sm" id="charCount">0/1000</span>
                             <i
-                                class="fas fa-markdown"
+                                class="fas fa-markdown ml-2"
                                 title="Markdown Supported"
                             ></i>
                         </div>
@@ -143,11 +152,11 @@
                                     >Anonymous User</span
                                 >
                                 <span class="text-gray-400 text-sm ml-2"
-                                    >• {{comment.created_at}}</span
+                                    >• {{ comment.created_at }}</span
                                 >
                             </div>
                             <div class="prose max-w-none text-gray-600">
-                                {{comment.content|safe}}
+                                {{ comment.content }}
                             </div>
                             <div
                                 class="mt-4 flex items-center space-x-4 text-gray-400"
@@ -170,16 +179,55 @@
                 </div>
                 {% endfor %}
             </div>
+
+            <!-- Empty State -->
+            {% if not comments %}
+            <div class="text-center text-gray-500 mt-8">
+                <i class="fas fa-comments text-6xl mb-4"></i>
+                <p class="text-xl">
+                    No comments yet. Be the first to share your thoughts!
+                </p>
+            </div>
+            {% endif %}
         </div>
 
-        <!-- Empty State -->
-        {% if not comments %}
-        <div class="text-center text-gray-500 mt-8">
-            <i class="fas fa-comments text-6xl mb-4"></i>
-            <p class="text-xl">
-                No comments yet. Be the first to share your thoughts!
-            </p>
-        </div>
-        {% endif %}
+        {% block scripts %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Form validation
+                const form = document.getElementById("commentForm");
+                const textarea = document.getElementById("content");
+                const charCount = document.getElementById("charCount");
+
+                // Character count update
+                textarea.addEventListener("input", function () {
+                    const length = this.value.trim().length;
+                    charCount.textContent = `${length}/1000`;
+
+                    // Optional: Add visual feedback for length
+                    if (length >= 900) {
+                        charCount.classList.add("text-red-500");
+                    } else {
+                        charCount.classList.remove("text-red-500");
+                    }
+                });
+
+                // Form submission validation
+                form.addEventListener("submit", function (e) {
+                    const content = textarea.value.trim();
+                    if (content.length === 0) {
+                        e.preventDefault();
+                        textarea.classList.add("border-red-500");
+                        alert("Please enter a comment");
+                    }
+                });
+
+                // Remove error styling on input
+                textarea.addEventListener("input", function () {
+                    this.classList.remove("border-red-500");
+                });
+            });
+        </script>
+        {% endblock %}
     </body>
 </html>

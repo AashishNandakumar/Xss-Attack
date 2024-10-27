@@ -1,4 +1,4 @@
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from .models import Comment
 from django.views.decorators.csrf import csrf_exempt  #
@@ -28,3 +28,10 @@ def stolen_data_view(request):
         }
         print("Stolen data received: ", data)
         return JsonResponse({"status": "received"})
+
+
+def base_view(request):
+    response = HttpResponse("Cookie successfuly set!")
+    response.set_cookie("name", "aashish nandakumar")
+
+    return response

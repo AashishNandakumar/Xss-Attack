@@ -17,10 +17,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from vulnerable_form.views import comment_view, stolen_data_view
+from vulnerable_form.views import comment_view, stolen_data_view, base_view
+from vulnerable_form.protected_views import secure_comment_view
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", base_view, name="base"),
     path("comments/", comment_view, name="comments"),
+    path("secure-comments/", secure_comment_view, name="secure-comments"),
     path("collect_data/", stolen_data_view, name="collect_data"),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

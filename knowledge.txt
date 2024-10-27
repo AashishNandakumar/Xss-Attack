@@ -1,0 +1,13 @@
+CSRF: aka one-click attack.
+cross-site: attack comes from a different site
+request: making an http request
+forgery: forging the request
+
+A cyberattack that tricks a user in performing unwanted actions on a web application while they are already authenticated.
+
+Simple Example of an Attack:
+1. You're logged into your bank website
+2. Visit a malicious site in another tab
+3. Malicious site has hidden form that sends to your bank (the bank cookies stored is also sent, making this request look like an authenticated request - so use `samesite` on cookies)
+
+CORS:

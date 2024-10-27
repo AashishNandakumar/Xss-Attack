@@ -44,9 +44,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -69,6 +69,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = "xssDemo.wsgi.application"
 
@@ -118,7 +119,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -126,7 +131,38 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # WARNING: for demonstration purposes only - dont use in production
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
+# SECURE_BROWSER_XSS_FILTER = False
+# SECURE_CONTENT_TYPE_NOSNIFF = False
+# CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOW_ALL_ORIGINS = True
+# NOTE: use these `security options` to secure your application
+"""
+# 1. XSS protection headers
+SECURE_BROWSER_XSS_FILTER = True  # tells the browser to block any detected XSS instead of trying to sanitize them.
+SECURE_CONTENT_TYPE_NOSNIFF = True  # prevents the browser from trying to sniff(determine) a file's content type when it is different from the declared content type
+
+# 2. SSL/HTTPS settings
+# SECURE_SSL_REDIRECT = True  # redirect all HTTP traffic to HTTPS
+SESSION_COOKIE_SECURE = True  # Cookies over HTTPS only
+CSRF_COOKIE_SECURE = True  # CSRF cookies over HTTPS only
+
+# 3. Session security
+SESSION_COOKIE_HTTPONLY = True  # Prevents JS to access session cookies
+SESSION_EXPIRES_AT_BROWSER_CLOSE = True  # Session expires when the browser closes
+
+# 4. Frame options
+X_FRAME_OPTIONS = "DENY"  # prevent clickjacking attacks (X - eXperimental/eXtenstion)
+
+# 5. Content Security Policy (CSP) - controls what resources a webpage can load
+CSP_DEFAULT_SRC = ("'self'",)  # only allow resources from the same origin
+CSP_SCRIPT_SRC = ("'self'",)  # only allow scripts from the same origin
+CSP_STYLE_SRC = ("'self'",)  # only allow styles from the same origin
+CSP_IMG_SRC = ("'self'",)  # only allow images from the same origin
+CSP_FONT_SRC = ("'self'",)  # only allow fonts from the same origin
+
+# 6. HTTP Strict Transport Security (HSTS)
+SECURE_HTS_SECONDS = 31536000  # only use HTTPS for this site for the next 1year
+SECURE_HTS_INCLUDE_SUBDOMAINS = True  # apply https to even subdomains
+SECURE_HTS_PRELOAD = True  # browsers will use HTTPS even on first visit (typically there will always be an intial HTTP connection)
+"""
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
